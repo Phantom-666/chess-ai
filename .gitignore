@@ -4,3 +4,7 @@ debug
 session
 sessions
 *.pth
+chess
+openai.py
+stockfish
+chessNotationParser

@@ -10,10 +10,7 @@ from server import encode_moves, create_next_move_board
 import random
 from models import input_size, hidden_size, output_size, learning_rate
 
-root_path = os.getcwd()
-sessions_path = os.path.join(root_path, 'sessions')
-session_path = os.path.join(root_path, 'session')
-
+from config import session_path, sessions_path, trained_models_path
 
 
 if torch.cuda.is_available():
@@ -75,6 +72,10 @@ def process_folder(folder_path):
 
 # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+def num_epochs_from(chess_path):
+    files = os.listdir(chess_path)
+
+    return len(files) 
 
 # Assuming you have already prepared your data
 def train():
@@ -165,8 +166,14 @@ def train():
 
     num_epochs = 100
 
+    
+
+    num_epochs_start = num_epochs_from(trained_models_path) 
+
+    print(f'epochs started from {num_epochs_start}')
+
     # Training loop
-    for epoch in range(num_epochs):
+    for epoch in range(num_epochs_start, num_epochs):
         model.train()
         running_loss = 0.0
         for inputs, labels in train_loader:
@@ -182,6 +189,7 @@ def train():
             running_loss += loss.item() * inputs.size(0)
         epoch_loss = running_loss / len(train_loader.dataset)
         print(f"Epoch {epoch+1}/{num_epochs}, Loss: {epoch_loss}")
+        torch.save(model.state_dict(), os.path.join(trained_models_path, f"chess-{epoch}.pth"))
 
     # Evaluate model
     model.eval()
@@ -199,7 +207,7 @@ def train():
     val_loss /= len(val_loader.dataset)
     print(f"Validation Loss: {val_loss}")
 
-    torch.save(model.state_dict(), "chess.pth")
+    
 
 
 if __name__=="__main__":
